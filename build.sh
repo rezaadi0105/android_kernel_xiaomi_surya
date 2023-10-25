@@ -164,6 +164,7 @@ compile() {
 		if [ $LOCALBUILD == "0" ]; then
 			make -j"$PROCS" O=out \
 					CROSS_COMPILE=aarch64-linux-gnu- \
+					LLVM=1 \
 					LLVM_IAS=1
 		elif [ $LOCALBUILD == "1" ]; then
 			make -j"$PROCS" O=out \
