@@ -105,7 +105,7 @@ setup_ksu() {
 # Set function for cloning repository
 clone() {
 	# Clone AnyKernel3
-	git clone --depth=1 https://github.com/rezaadi0105/AnyKernel3.git -b master
+	git clone --depth=1 https://github.com/rezaadi0105/AnyKernel3.git -b surya
 
 	if [ $COMPILER == "clang" ]; then
 		# Clone Proton clang
@@ -182,7 +182,7 @@ compile() {
 	fi
 	BUILD_END=$(date +"%s")
 	DIFF=$((BUILD_END - BUILD_START))
-	if [ -f "$IMG_DIR"/Image.gz-dtb ]; then
+	if [ -f "$IMG_DIR"/Image.gz ]; then
 		echo -e "Kernel successfully compiled"
 		if [ $LOCALBUILD == "1" ]; then
 			git restore arch/arm64/configs/surya_defconfig
@@ -190,7 +190,7 @@ compile() {
 				git restore drivers/ fs/
 			fi
 		fi
-	elif ! [ -f "$IMG_DIR"/Image.gz-dtb ]; then
+	elif ! [ -f "$IMG_DIR"/Image.gz ]; then
 		echo -e "Kernel compilation failed"
 		if [ $LOCALBUILD == "0" ]; then
 			tg_post_msg "<b>Build failed to compile after $((DIFF / 60)) minute(s) and $((DIFF % 60)) seconds</b>"
@@ -209,13 +209,14 @@ compile() {
 gen_zip() {
 	if [[ $LOCALBUILD == "1" || -d "$KERNEL_DIR"/KernelSU ]]; then
 		cd AnyKernel3 || exit
-		rm -rf dtbo.img dtb.img Image.gz-dtb *.zip
+		rm -rf dt* Image.gz *.zip
 		cd ..
 	fi
 
 	# Move kernel image to AnyKernel3
+	mv "$IMG_DIR"/dtb.img AnyKernel3/dtb.img
 	mv "$IMG_DIR"/dtbo.img AnyKernel3/dtbo.img
-	mv "$IMG_DIR"/Image.gz-dtb AnyKernel3/Image.gz-dtb
+	mv "$IMG_DIR"/Image.gz AnyKernel3/Image.gz
 	cd AnyKernel3 || exit
 
 	# Archive to flashable zip
