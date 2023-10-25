@@ -94,32 +94,12 @@ tg_post_build() {
 # Set function for setup KernelSU
 setup_ksu() {
 	curl -kLSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-	if [ -d "$KERNEL_DIR"/KernelSU ]; then
-		git apply KernelSU-hook.patch
-	else
-		echo -e "Setup KernelSU failed, stopped build now..."
-		exit 1
-	fi
-}
-
-# Set function for defconfig changes
-cfg_changes() {
-	if [ $COMPILER == "clang" ]; then
-		sed -i 's/CONFIG_LTO_GCC=y/# CONFIG_LTO_GCC is not set/g' arch/arm64/configs/surya_defconfig
-		sed -i 's/CONFIG_GCC_GRAPHITE=y/# CONFIG_GCC_GRAPHITE is not set/g' arch/arm64/configs/surya_defconfig
-	elif [ $COMPILER == "gcc" ]; then
-		sed -i 's/CONFIG_LTO=y/# CONFIG_LTO is not set/g' arch/arm64/configs/vendor/surya_defconfig
-		sed -i 's/CONFIG_LTO_CLANG=y/# CONFIG_LTO_CLANG is not set/g' arch/arm64/configs/surya_defconfig
-		sed -i 's/# CONFIG_LTO_NONE is not set/CONFIG_LTO_NONE=y/g' arch/arm64/configs/surya_defconfig
-	fi
-
-	if [ $LOCALBUILD == "1" ]; then
-		if [ $COMPILER == "clang" ]; then
-			sed -i 's/# CONFIG_THINLTO is not set/CONFIG_THINLTO=y/g' arch/arm64/configs/surya_defconfig
-		elif [ $COMPILER == "gcc" ]; then
-			sed -i 's/CONFIG_LTO_GCC=y/# CONFIG_LTO_GCC is not set/g' arch/arm64/configs/surya_defconfig
-		fi
-	fi
+	#if [ -d "$KERNEL_DIR"/KernelSU ]; then
+	#	git apply KernelSU-hook.patch
+	#else
+	#	echo -e "Setup KernelSU failed, stopped build now..."
+	#	exit 1
+	#fi
 }
 
 # Set function for cloning repository
@@ -256,15 +236,13 @@ gen_zip() {
 }
 
 clone
-cfg_changes
 if [ $LOCALBUILD == "0" ]; then
 	send_tg_msg
 fi
 compile
 set_naming
 gen_zip
-#setup_ksu
-cfg_changes
+setup_ksu
 compile
 set_naming
 gen_zip
